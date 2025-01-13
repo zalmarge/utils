@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+# Install the latest PostgreSQL from PGDG repo
+
+set -e
+
+apt-get update -q
+apt-get install -yq --no-install-recommends postgresql-common
+
+/usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+
+apt-get install -yq postgresql
+
