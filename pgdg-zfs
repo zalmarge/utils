@@ -20,3 +20,5 @@ wal_init_zero=off
 wal_recycle=off
 EOF
 
+systemctl restart postgresql
+
