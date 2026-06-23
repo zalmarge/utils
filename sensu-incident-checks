@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+failed=0
+
+echo "Is sensu-client service enabled?"
+if systemctl is-enabled --quiet sensu-client 2>/dev/null; then
+    echo "FAIL: sensu-client is enabled"
+    ((failed+=1))
+else
+    echo "PASS: sensu-client is not enabled"
+fi
+
+echo
+echo "Is sensu-client service running?"
+if systemctl is-active --quiet sensu-client 2>/dev/null; then
+    echo "FAIL: sensu-client is running"
+    ((failed+=1))
+else
+    echo "PASS: sensu-client is not running"
+fi
+
+echo
+echo "Looking for known suspicious files... "
+if ls -la /tmp/.tc /var/tmp/.tc /dev/shm/.tc 2>/dev/null; then
+    echo "FOUND: Found known suspicious files!"
+    ((failed+=1))
+else
+    echo "PASS: No known suspicious files found."
+fi
+
+echo
+echo "Looking for executables in suspicious directories..."
+execs=$(find /tmp /var/tmp /dev/shm -type f -perm -111 -mtime -7 2>/dev/null || true)
+if [ -n "$execs" ]; then
+    echo "$execs"
+    echo "FOUND: Found suspicious executables!"
+    ((failed+=1))
+else
+    echo "PASS: No suspicious executables found."
+fi
+
+echo
+echo "Looking for suspicious processes... "
+if pgrep -af '/tmp/\.tc|/var/tmp|/dev/shm|cloud-assets|static-cache|144\.172\.99\.201|104\.194\.153\.133'; then
+    echo "FOUND: Found suspicious processes!"
+    ((failed+=1))
+else
+    echo "PASS: No suspicious processes found."
+fi
+
+echo
+echo "Looking for suspicious network connections... "
+if ss -plant | grep -E '144\.172\.99\.201|104\.194\.153\.133'; then
+    echo "FOUND: Found suspicious network connections!"
+    ((failed+=1))
+else
+    echo "PASS: No suspicious network connections found."
+fi
+
+echo
+
+if [ "$failed" -eq 0 ]; then
+    echo "VERDICT: PASS - No indicators found."
+else
+    echo "VERDICT: FAIL - $failed finding(s) detected."
+fi
+
+exit $(( failed > 0 ))
