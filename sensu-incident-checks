@@ -4,21 +4,23 @@ set -euo pipefail
 
 failed=0
 
-echo "Is sensu-client service enabled?"
-if systemctl is-enabled --quiet sensu-client 2>/dev/null; then
-    echo "FAIL: sensu-client is enabled"
-    ((failed+=1))
-else
-    echo "PASS: sensu-client is not enabled"
-fi
-
-echo
 echo "Is sensu-client service running?"
 if systemctl is-active --quiet sensu-client 2>/dev/null; then
-    echo "FAIL: sensu-client is running"
+    echo "FAIL: sensu-client is running, stopping"
+    systemctl stop --now sensu-client 2>/dev/null || true
     ((failed+=1))
 else
     echo "PASS: sensu-client is not running"
+fi
+
+echo
+echo "Is sensu-client service enabled?"
+if systemctl is-enabled --quiet sensu-client 2>/dev/null; then
+    echo "FAIL: sensu-client is enabled, deactivating"
+    systemctl disable --now sensu-client 2>/dev/null || true
+    ((failed+=1))
+else
+    echo "PASS: sensu-client is not enabled"
 fi
 
 echo
