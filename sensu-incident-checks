@@ -7,7 +7,7 @@ failed=0
 echo "Is sensu-client service running?"
 if systemctl is-active --quiet sensu-client 2>/dev/null; then
     echo "FAIL: sensu-client is running, stopping"
-    systemctl stop --now sensu-client 2>/dev/null || true
+    systemctl stop sensu-client 2>/dev/null || true
     ((failed+=1))
 else
     echo "PASS: sensu-client is not running"
