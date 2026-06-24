@@ -25,7 +25,14 @@ fi
 
 echo
 echo "Looking for known suspicious files... "
-if ls -la /tmp/.tc /var/tmp/.tc /dev/shm/.tc 2>/dev/null; then
+suspicious_files=()
+for path in /tmp/.tc /var/tmp/.tc /dev/shm/.tc; do
+    if [ -e "$path" ] || [ -L "$path" ]; then
+        suspicious_files+=("$path")
+    fi
+done
+if [ "${#suspicious_files[@]}" -gt 0 ]; then
+    ls -la "${suspicious_files[@]}"
     echo "FOUND: Found known suspicious files!"
     ((failed+=1))
 else
