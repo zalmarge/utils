@@ -62,7 +62,17 @@ else
 fi
 
 echo
+echo "Looking for suspicious log records... "
+if { cat /var/log/sensu/*.log 2>/dev/null
+     zcat /var/log/sensu/*.gz 2>/dev/null; } | grep 'curl' >/dev/null
+then
+    echo "FOUND: Found suspicious log records!"
+    ((failed+=1))
+else
+    echo "PASS: No suspicious log records found."
+fi
 
+echo
 if [ "$failed" -eq 0 ]; then
     echo "VERDICT: PASS - No indicators found."
 else
