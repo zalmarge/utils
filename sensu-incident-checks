@@ -70,8 +70,8 @@ fi
 
 echo
 echo "Looking for suspicious log records... "
-if { cat /var/log/sensu/*.log 2>/dev/null
-     zcat /var/log/sensu/*.gz 2>/dev/null; } | grep 'curl' >/dev/null
+if { cat /var/log/sensu/*.log 2>/dev/null || true
+     zcat /var/log/sensu/*.gz 2>/dev/null || true; } | grep 'curl' >/dev/null
 then
     echo "FOUND: Found suspicious log records!"
     ((failed+=1))
