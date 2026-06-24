@@ -41,7 +41,7 @@ fi
 
 echo
 echo "Looking for executables in suspicious directories..."
-execs=$(find /tmp /var/tmp /dev/shm -type f -perm -111 -mtime -7 2>/dev/null || true)
+execs=$(find /tmp /var/tmp /dev/shm -type f \( -perm -0100 -o -perm -0010 -o -perm -0001 \) -mtime -7 2>/dev/null || true)
 if [ -n "$execs" ]; then
     echo "$execs"
     echo "FOUND: Found suspicious executables!"
