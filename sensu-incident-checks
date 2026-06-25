@@ -60,6 +60,29 @@ else
 fi
 
 echo
+echo "Looking for processes with deleted binaries... "
+found_deleted=0
+for exe in /proc/*/exe; do
+    # skip non-matching glob
+    if [ ! -e "$exe" ]; then
+        continue
+    fi
+    target=$(readlink "$exe" 2>/dev/null) || continue
+    case "$target" in
+        *"(deleted)"*)
+            found_deleted=1
+            break
+            ;;
+    esac
+done
+if [ "$found_deleted" -ne 0 ]; then
+    echo "FOUND: Found suspicious processes with deleted binaries!"
+    ((failed+=1))
+else
+    echo "PASS: No suspicious processes with deleted binaries found."
+fi
+
+echo
 echo "Looking for suspicious network connections... "
 if ss -plant | grep -E '144\.172\.99\.201|104\.194\.153\.133'; then
     echo "FOUND: Found suspicious network connections!"
